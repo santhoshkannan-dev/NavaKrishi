@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, ProductReview, Cart, CartItem, Order, OrderItem, Notification, SupportArticle
+from .models import Category, Product, ProductImage, ProductReview, Cart, CartItem, Order, OrderItem, Notification, SupportArticle, PredictionSimulation
 from accounts.models import User
 from accounts.serializers import UserSerializer
 from .models import SubscriptionPlan, Subscription
@@ -236,6 +236,31 @@ class SupportArticleSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = fields
+
+
+class PredictionInputSerializer(serializers.Serializer):
+    season = serializers.ChoiceField(choices=['summer', 'monsoon', 'winter'])
+    expected_rainfall = serializers.FloatField(min_value=0, max_value=5000)
+    min_temperature = serializers.FloatField(min_value=-40, max_value=70)
+    max_temperature = serializers.FloatField(min_value=-40, max_value=70)
+    soil_ph = serializers.FloatField(min_value=0, max_value=14)
+
+    def validate(self, attrs):
+        if attrs['min_temperature'] > attrs['max_temperature']:
+            raise serializers.ValidationError({'max_temperature': 'Maximum temperature must be greater than or equal to minimum temperature.'})
+        return attrs
+
+
+class PredictionSimulationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PredictionSimulation
+        fields = ['id', 'scenario_name', 'season', 'expected_rainfall', 'min_temperature', 'max_temperature', 'soil_ph', 'results', 'model_version', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'results', 'model_version', 'created_at', 'updated_at']
+
+    def validate(self, attrs):
+        if attrs['min_temperature'] > attrs['max_temperature']:
+            raise serializers.ValidationError({'max_temperature': 'Maximum temperature must be greater than or equal to minimum temperature.'})
+        return attrs
 
 
 class SubscriptionPlanSerializer(serializers.ModelSerializer):

@@ -28,6 +28,7 @@ from .assistant_views import (
     assistant_generate_description,
     assistant_crop_recommendation,
 )
+from .views import prediction_lab_analyze, prediction_lab_simulations, prediction_lab_compare
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
@@ -45,6 +46,9 @@ urlpatterns = [
     path('assistant/search/', assistant_search),
     path('assistant/product-description/', assistant_generate_description),
     path('assistant/crop-recommendation/', assistant_crop_recommendation),
+    path('farmer/prediction-lab/analyze/', prediction_lab_analyze),
+    path('farmer/prediction-lab/simulations/', prediction_lab_simulations),
+    path('farmer/prediction-lab/compare/', prediction_lab_compare),
     path('payments/razorpay/create-order/', razorpay_create_order),
     path('payments/razorpay/verify/', razorpay_verify_payment),
     path('payments/razorpay/subscription/plans/', subscription_plans),

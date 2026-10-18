@@ -1,6 +1,6 @@
 import { FiSave, FiClock } from "react-icons/fi";
 
-const PredictionHeader = () => {
+const PredictionHeader = ({ onHistory, onSave, saving, canSave }) => {
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
 
@@ -18,14 +18,14 @@ const PredictionHeader = () => {
 
       <div className="flex gap-4">
 
-        <button className="border border-[#012d1d] px-8 py-5 rounded-2xl flex items-center gap-3 font-semibold hover:bg-gray-50 transition">
+        <button type="button" onClick={onHistory} className="border border-[#012d1d] px-8 py-5 rounded-2xl flex items-center gap-3 font-semibold hover:bg-gray-50 transition">
           <FiClock />
           View History
         </button>
 
-        <button className="bg-[#012d1d] text-white px-8 py-5 rounded-2xl flex items-center gap-3 font-semibold hover:bg-[#021f15] transition">
+        <button type="button" onClick={onSave} disabled={!canSave || saving} className="bg-[#012d1d] text-white px-8 py-5 rounded-2xl flex items-center gap-3 font-semibold hover:bg-[#021f15] transition disabled:cursor-not-allowed disabled:opacity-50">
           <FiSave />
-          Save Simulation
+          {saving ? "Saving..." : "Save Simulation"}
         </button>
       </div>
     </div>

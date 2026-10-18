@@ -188,6 +188,27 @@ class SupportArticle(models.Model):
         return f"{self.category}: {self.question}"
 
 
+class PredictionSimulation(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prediction_simulations')
+    scenario_name = models.CharField(max_length=120, default='Untitled simulation')
+    season = models.CharField(max_length=20)
+    expected_rainfall = models.FloatField()
+    min_temperature = models.FloatField()
+    max_temperature = models.FloatField()
+    soil_ph = models.FloatField()
+    results = models.JSONField()
+    model_version = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['owner', '-created_at'])]
+
+    def __str__(self):
+        return f'{self.scenario_name} for {self.owner.username}'
+
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)

@@ -22,11 +22,12 @@ import csv
 from django.core.mail import send_mail
 from django.conf import settings as dj_settings
 
-from .models import Category, Product, ProductReview, Cart, CartItem, Order, OrderItem, PromoCode, Notification, SupportArticle
+from .models import Category, Product, ProductReview, Cart, CartItem, Order, OrderItem, PromoCode, Notification, SupportArticle, PredictionSimulation
 from .models import SubscriptionPlan, Subscription
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
-from .serializers import CategorySerializer, ProductSerializer, CartSerializer, CartItemSerializer, OrderSerializer, NotificationSerializer, SupportArticleSerializer
+from .serializers import CategorySerializer, ProductSerializer, CartSerializer, CartItemSerializer, OrderSerializer, NotificationSerializer, SupportArticleSerializer, PredictionInputSerializer, PredictionSimulationSerializer
+from .prediction_lab import analyze_scenario
 from .serializers import SubscriptionPlanSerializer, SubscriptionSerializer
 from asgiref.sync import async_to_sync
 try:
@@ -46,6 +47,53 @@ PLAN_PRODUCT_LIMITS = {
 }
 
 logger = logging.getLogger(__name__)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def prediction_lab_analyze(request):
+    serializer = PredictionInputSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    return Response(analyze_scenario(**serializer.validated_data), status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def prediction_lab_simulations(request):
+    if request.method == 'GET':
+        simulations = PredictionSimulation.objects.filter(owner=request.user)
+        return Response(PredictionSimulationSerializer(simulations, many=True).data)
+
+    serializer = PredictionSimulationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    inputs = {key: serializer.validated_data[key] for key in ('season', 'expected_rainfall', 'min_temperature', 'max_temperature', 'soil_ph')}
+    results = analyze_scenario(**inputs)
+    simulation = serializer.save(owner=request.user, results=results, model_version=results['model_version'])
+    return Response(PredictionSimulationSerializer(simulation).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def prediction_lab_compare(request):
+    current_id = request.data.get('current_id')
+    previous_id = request.data.get('previous_id')
+    simulations = PredictionSimulation.objects.filter(owner=request.user, id__in=[current_id, previous_id])
+    records = {str(item.id): item for item in simulations}
+    if str(current_id) not in records or str(previous_id) not in records:
+        return Response({'detail': 'Both simulations must belong to the authenticated farmer.'}, status=status.HTTP_404_NOT_FOUND)
+    current, previous = records[str(current_id)], records[str(previous_id)]
+    current_score = current.results['recommendations'][0]['suitability_score']
+    previous_score = previous.results['recommendations'][0]['suitability_score']
+    return Response({
+        'current': PredictionSimulationSerializer(current).data,
+        'previous': PredictionSimulationSerializer(previous).data,
+        'changes': {
+            'top_crop_changed': current.results['recommendations'][0]['name'] != previous.results['recommendations'][0]['name'],
+            'top_crop_score_delta': round(current_score - previous_score, 1),
+            'risk_changed': current.results['risk_summary'] != previous.results['risk_summary'],
+        },
+        'limitations': ['Yield and revenue comparison is unavailable because neither simulation has validated financial outputs.'],
+    })
 
 
 def _subscription_plan_product_limit(plan):
