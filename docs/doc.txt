@@ -1,0 +1,75 @@
+SuperUser
+
+Username: navakrishi-admin
+Email address: navakrishiadmin@gmail.com
+password: admin@123
+
+customer
+dhanya@gmail.com
+123456
+
+farmer
+Pass: 123456
+santhoshathi7@gmail.com
+spicevalley@gmail.com
+desertblossomfarm@gmail.com
+cropcraftfarm@gmail.com
+
+python manage.py runserver 0.0.0.0:8000 
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& c:\Users\pro\OneDrive\Desktop\NavaKrishi\venv\Scripts\Activate.ps1)
+
+
+PROMO CODE
+
+WELCOME10: applied (10% off) then rejected on second use (first-order only).
+
+FARMFRESH, GREENFUTURE, DIRECTFARM, PRITHVIAI, HARVEST25: applied on first attempt; second attempt returned zero discount (usage enforced).
+
+FREESHIP: applied and set free shipping; second attempt returned free_shipping but zeroed amounts (already consumed).
+
+SOILHEALTH: rejected due to minimum-order requirement.
+
+
+// Green
+bg-green-100 text-green-800
+
+// Yellow
+bg-yellow-100 text-yellow-800
+
+// Amber
+bg-amber-100 text-amber-800
+
+// Orange
+bg-orange-100 text-orange-800
+
+// Red
+bg-red-100 text-red-800
+
+// Teal
+bg-teal-100 text-teal-800
+
+// Gray
+bg-gray-100 text-gray-800
+
+// Zinc
+bg-zinc-100 text-zinc-800
+
+// Slate
+bg-slate-100 text-slate-800
+
+// Stone
+bg-stone-100 text-stone-800
+
+// Organic
+bg-green-100 text-green-800
+
+// AI
+bg-emerald-100 text-emerald-800
+
+// Premium
+bg-amber-100 text-amber-800
+
+
+
+// Warning
+bg-red-100 text-red-800

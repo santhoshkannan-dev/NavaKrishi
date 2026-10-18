@@ -1,0 +1,50 @@
+const defaultStats = [
+  {
+    title: "Total Sales",
+    value: "$14,290.50",
+    meta: "+12.5%",
+  },
+  {
+    title: "Pending Orders",
+    value: "24",
+  },
+  {
+    title: "New Reviews",
+    value: "156",
+  },
+  {
+    title: "Active Listings",
+    value: "18",
+  },
+];
+
+const KPICards = ({ stats = defaultStats }) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      {stats.map((stat) => (
+        <div
+          key={stat.title}
+          className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm min-h-[120px] flex flex-col justify-between"
+        >
+          <div className="flex items-start justify-between">
+            <p className="text-gray-500 text-sm">
+              {stat.title}
+            </p>
+
+            {stat.meta && (
+              <span className="text-sm text-green-600 font-semibold">
+                {stat.meta}
+              </span>
+            )}
+          </div>
+
+          <h2 className="text-3xl md:text-4xl font-bold text-[#012d1d] mt-4">
+            {stat.value}
+          </h2>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default KPICards;
