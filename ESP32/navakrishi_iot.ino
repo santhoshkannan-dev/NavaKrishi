@@ -37,6 +37,8 @@ const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";
 // Ensure your computer and ESP32 are connected to the same Wi-Fi network
 const char* DJANGO_HOST = "http://192.168.1.100:8000";
 const char* IOT_ENDPOINT = "/api/iot/data/";
+// Set this to the backend IOT_DEVICE_TOKEN before flashing the device.
+const char* IOT_DEVICE_TOKEN = "";
 
 // Telemetry transmit interval (in milliseconds)
 const unsigned long TRANSMIT_INTERVAL_MS = 5000;
@@ -148,6 +150,9 @@ void readAndTransmitTelemetry() {
 
     http.begin(fullUrl);
     http.addHeader("Content-Type", "application/json");
+    if (strlen(IOT_DEVICE_TOKEN) > 0) {
+      http.addHeader("X-IOT-Device-Token", IOT_DEVICE_TOKEN);
+    }
 
     int httpResponseCode = http.POST(jsonPayload);
 

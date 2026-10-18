@@ -167,3 +167,6 @@ CHANNEL_LAYERS = {
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID') or os.getenv('VITE_RAZORPAY_KEY_ID') or os.getenv('key_id', '')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET') or os.getenv('key_secret', '')
 RAZORPAY_CURRENCY = 'INR'
+
+# Device ingestion must be explicitly configured; an empty token disables ingestion.
+IOT_DEVICE_TOKEN = os.getenv('IOT_DEVICE_TOKEN', '')

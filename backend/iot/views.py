@@ -2,7 +2,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -11,6 +11,7 @@ from .serializers import SensorDataSerializer, NotificationSerializer, AlertSeri
 from .alerts import evaluate_sensor_alerts
 from .health import calculate_field_health
 from .nlp.assistant import process_query
+from .permissions import HasDeviceToken
 
 ONLINE_THRESHOLD_SECONDS = 30
 WARNING_THRESHOLD_SECONDS = 120
@@ -62,7 +63,7 @@ def _normalize_sensor_payload(payload):
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([HasDeviceToken])
 def receive_sensor_data(request):
     """
     Receives live telemetry from NodeMCU / ESP.
@@ -98,7 +99,7 @@ def receive_sensor_data(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def latest_sensor_data(request):
     latest = SensorData.objects.first()
     if latest is None:
@@ -108,7 +109,7 @@ def latest_sensor_data(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def sensor_history(request):
     qs = SensorData.objects.all()
     hours_param = request.query_params.get('hours')
@@ -139,7 +140,7 @@ def sensor_history(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def device_status(request):
     latest = SensorData.objects.first()
 
@@ -177,7 +178,7 @@ def device_status(request):
 # =====================================================================
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def notification_list(request):
     """
     GET /api/iot/notifications/
@@ -202,7 +203,7 @@ def notification_list(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def notification_unread_count(request):
     """
     GET /api/iot/notifications/unread-count/
@@ -213,7 +214,7 @@ def notification_unread_count(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def mark_notification_read(request, notification_id):
     """
     POST /api/iot/notifications/<id>/read/
@@ -229,7 +230,7 @@ def mark_notification_read(request, notification_id):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def mark_all_notifications_read(request):
     """
     POST /api/iot/notifications/read-all/
@@ -243,7 +244,7 @@ def mark_all_notifications_read(request):
 
 # Preserved Alert alias endpoints
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def alert_list(request):
     alerts = Alert.objects.all()[:50]
     serializer = AlertSerializer(alerts, many=True)
@@ -251,7 +252,7 @@ def alert_list(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def mark_alert_read(request, alert_id):
     try:
         alert = Alert.objects.get(id=alert_id)
@@ -263,7 +264,7 @@ def mark_alert_read(request, alert_id):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def mark_all_alerts_read(request):
     count = Alert.objects.filter(is_read=False).update(is_read=True)
     Notification.objects.filter(is_read=False).update(is_read=True)
@@ -271,7 +272,7 @@ def mark_all_alerts_read(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def field_summary(request):
     latest = SensorData.objects.first()
     health = calculate_field_health(latest)
@@ -306,7 +307,7 @@ def field_summary(request):
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def nlp_assistant(request):
     message = request.data.get('message', '')
     session_id = request.data.get('session_id', 'default')
@@ -315,6 +316,7 @@ def nlp_assistant(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def pump_control(request):
     if request.method == 'GET':
         latest = PumpCommand.objects.first()
